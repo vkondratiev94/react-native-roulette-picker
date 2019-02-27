@@ -5,6 +5,8 @@ import _ from 'lodash'
 
 import Graph, { COL_WIDTH } from './Graph'
 
+const WIDTH = Dimensions.get('window').width
+
 export default class AmountPicker extends PureComponent {
   state = {
     step: null,
@@ -137,12 +139,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff'
   },
   scrollContent: {
-    paddingHorizontal: Dimensions.get('window').width / 2
+    paddingHorizontal: WIDTH / 2
   },
   pointer: {
     position: 'absolute',
     top: 0,
-    left: '50%',
+    left: WIDTH / 2 - 1,
     width: 2,
     height: '100%',
     backgroundColor: 'red'
