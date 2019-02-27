@@ -16,24 +16,37 @@ export default class AmountPicker extends PureComponent {
   textInput = React.createRef()
 
   componentDidMount() {
-    const {amount, highestBid} = this.props
+    const {storePrice, currentBid, highestBid, minPricePercent} = this.props
 
     // --- adding listeners
     this.listener = this.state.x.addListener(this.update)
 
     // --- dynamically counting step
-    let step = _.round(amount / 1000)
+    let step = _.round(storePrice / 1000)
     if (step < 1) {
       step = 1
     } else if (step > 10) {
       step = 10
     }
 
-    // --- intial scroll to pisition near highest bid
-    const initialItemIndex = _.ceil(highestBid / step)
-    this.scroll.current._component.scrollTo({ x: initialItemIndex * COL_WIDTH, animated: false })
+    // --- set initial value to textInput component and scroll to position near minPrice / current bid / highest bid on init
+    let initValue = _.ceil(storePrice * minPricePercent)
+    let initialItemIndex = _.ceil(storePrice * minPricePercent / step)
+    if (currentBid) {
+      initValue = currentBid
+      initialItemIndex = _.ceil(currentBid / step)
+    }
+    if (highestBid && !currentBid) {
+      initValue = highestBid
+      initialItemIndex = _.ceil(highestBid / step)
+    }
+    this.textInput.current.setNativeProps({ text: initValue.toString() })
+    this.scroll.current._component.scrollTo({
+      x: initialItemIndex * COL_WIDTH,
+      animated: false
+    })
 
-    // --- set step amount to the state
+    // --- set step value to the state
     this.setState({ step })
   }
 
@@ -44,29 +57,32 @@ export default class AmountPicker extends PureComponent {
 
   update = ({ value: scrollPosition }) => {
     const {step, isDirectBuy} = this.state
-    const {amount} = this.props
+    const {storePrice, onStopScrolling} = this.props
 
     // --- defining current value depending on scroll posiiton and step
     let val = _.floor(scrollPosition / COL_WIDTH) * step
 
-    // --- fix val greater then amount
-    if (val > amount) val = amount
+    // --- fix val greater then storePrice
+    if (val > storePrice) val = storePrice
     
     // --- directly set value to textInput component
     const text = val.toString()
     this.textInput.current.setNativeProps({text})
 
-    // --- if current value is equal store price (amount), do direct buy
-    if (val === amount && !isDirectBuy) {
+    // --- if current value is equal store price, do direct buy
+    if (val === storePrice && !isDirectBuy) {
       this.setState({ isDirectBuy: true })
-    } else if (val !== amount && isDirectBuy) {
+    } else if (val !== storePrice && isDirectBuy) {
       this.setState({ isDirectBuy: false })
     }
+
+    // set value to parent component
+    onStopScrolling(val)
   }
 
   render() {
     const {x, step, isDirectBuy} = this.state
-    const {amount, highestBid} = this.props
+    const {storePrice, highestBid} = this.props
     return (
       <View style={styles.container}>
         <Animated.ScrollView
@@ -88,8 +104,8 @@ export default class AmountPicker extends PureComponent {
           )}
         >
           <Graph
-            to={amount}
             step={step}
+            to={storePrice}
             highestBid={highestBid}
           />
         </Animated.ScrollView>
@@ -107,8 +123,11 @@ export default class AmountPicker extends PureComponent {
 }
 
 AmountPicker.propTypes = {
-  amount: PropTypes.number.isRequired,
+  storePrice: PropTypes.number.isRequired,
+  currentBid: PropTypes.number,
   highestBid: PropTypes.number,
+  minPricePercent: PropTypes.number,
+  onStopScrolling: PropTypes.func
 }
 
 const styles = StyleSheet.create({
