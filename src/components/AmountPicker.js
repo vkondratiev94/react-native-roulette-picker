@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { Animated, View, StyleSheet, TextInput, Dimensions } from 'react-native'
+import { Animated, View, Text, StyleSheet, TextInput, Dimensions } from 'react-native'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 
@@ -42,7 +42,8 @@ export default class AmountPicker extends PureComponent {
       initValue = highestBid
       initialItemIndex = _.ceil(highestBid / step)
     }
-    this.textInput.current.setNativeProps({ text: initValue.toString() })
+    const text = initValue.toString()
+    this.textInput.current.setNativeProps({text})
     this.scroll.current._component.scrollTo({
       x: initialItemIndex * COL_WIDTH,
       animated: false
@@ -87,6 +88,17 @@ export default class AmountPicker extends PureComponent {
     const {storePrice, highestBid} = this.props
     return (
       <View style={styles.container}>
+        <View style={styles.containerAmount}>
+          <TextInput
+            editable={false}
+            ref={this.textInput}
+            style={styles.text}
+          />
+          <Text style={[
+            styles.text,
+            styles.textWithLeftMargin
+          ]}>EUR</Text>
+        </View>
         <Animated.ScrollView
           horizontal
           bounces={false}
@@ -115,10 +127,6 @@ export default class AmountPicker extends PureComponent {
           styles.pointer,
           isDirectBuy && styles.pointerActive
         ]} />
-        <TextInput
-          editable={false}
-          ref={this.textInput}
-        />
       </View>
     )
   }
@@ -134,22 +142,37 @@ AmountPicker.propTypes = {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    width: '100%',
     position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: '#fff'
   },
+  containerAmount: {
+    flexDirection: 'row',
+    marginBottom: 30
+  },
+  text: {
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  textWithLeftMargin: {
+    marginLeft: 5 
+  },
   scrollContent: {
+    justifyContent: 'flex-end',
     paddingHorizontal: WIDTH / 2
   },
   pointer: {
     position: 'absolute',
-    top: 0,
-    left: WIDTH / 2 - 1,
-    width: 2,
-    height: '100%',
-    backgroundColor: 'red'
+    left: WIDTH / 2 - 2,
+    bottom: 15,
+    width: 4,
+    height: 70,
+    marginTop: -42,
+    backgroundColor: '#1ca5b8'
   },
   pointerActive: {
-    backgroundColor: '#00ff00'
+    backgroundColor: '#00c12e'
   }
 })
