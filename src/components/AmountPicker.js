@@ -1,7 +1,9 @@
 import React, { PureComponent } from 'react'
-import { Animated, View, Text, StyleSheet, TextInput, Dimensions } from 'react-native'
+import { Animated, View, Text, StyleSheet, TextInput, Dimensions, Image } from 'react-native'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
+
+import gradientImage from '../../assets/gradient.png'
 
 import Graph, { COL_WIDTH } from './Graph'
 
@@ -88,6 +90,13 @@ export default class AmountPicker extends PureComponent {
     const {storePrice, highestBid} = this.props
     return (
       <View style={styles.container}>
+        <Image
+          source={gradientImage}
+          style={[
+            styles.gradient,
+            styles.gradientLeft
+          ]}
+        />      
         <View style={styles.containerAmount}>
           <TextInput
             editable={false}
@@ -127,6 +136,13 @@ export default class AmountPicker extends PureComponent {
           styles.pointer,
           isDirectBuy && styles.pointerActive
         ]} />
+        <Image
+          source={gradientImage}
+          style={[
+            styles.gradient,
+            styles.gradientRight
+          ]}
+        />
       </View>
     )
   }
@@ -174,5 +190,18 @@ const styles = StyleSheet.create({
   },
   pointerActive: {
     backgroundColor: '#00c12e'
+  },
+  gradient: {
+    height: '100%',
+    position: 'absolute',
+    zIndex: 99,
+    top: 20
+  },
+  gradientLeft: {
+    left: 0
+  },
+  gradientRight: {
+    right: 0,
+    transform: [{ rotateY: '180deg' }]
   }
 })
